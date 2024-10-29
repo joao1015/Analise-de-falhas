@@ -12,7 +12,7 @@ freio_sinonimos = {
 }
 
 def aplicar_pesos(falha_cliente, falha_banco):
-    # Aumentar o peso de termos relacionados a freios
+    # Aumentar o peso de termos relacionados a freioss
     peso_adicional = 0
     for palavra, sinonimos in freio_sinonimos.items():
         for sinonimo in sinonimos:
@@ -87,7 +87,7 @@ def buscar_falha(marca, modelo, ano, versao, falha_cliente):
             return None
 
     except Exception as e:
-        print(f"Ocorreu um erro na função buscar_falha: {e}")
+        print(f"Ocorreu um erro na função buscar_falhas: {e}")
         return None
 
     finally:
