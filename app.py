@@ -19,20 +19,34 @@ def aplicar_pesos(falha_cliente, falha_banco):
             if sinonimo in falha_cliente.lower():
                 if palavra in falha_banco.lower():
                     peso_adicional += 20  # Aumentar peso se houver correspondência de sinônimos
-
     return peso_adicional
+
+def get_db_connection():
+    """
+    Estabelece conexão com o banco de dados Oracle em modo Thin (sem Oracle Client).
+    Retorna um objeto de conexão ou None em caso de falha.
+    """
+    try:
+        # Modo Thin, que não requer o Oracle Instant Client
+        connection = oracledb.connect(
+            user='rm557808',
+            password='021093',
+            dsn='Oracle.fiap.com.br:1521/orcl'
+        )
+        return connection
+    except oracledb.Error as e:
+        print(f"Erro ao conectar ao banco de dados: {e}")
+        return None
 
 def buscar_falha(marca, modelo, ano, versao, falha_cliente):
     conn = None
     cursor = None
     try:
-        # Conexão ao banco de dados Oracle
-        dsn_tns = cx_Oracle.makedsn('Oracle.fiap.com.br', '1521', service_name='orcl')
-        conn = cx_Oracle.connect(user='rm557808', password='021093', dsn=dsn_tns)
+        conn = get_db_connection()
+        if conn is None:
+            return None
 
         cursor = conn.cursor()
-
-        # Consulta SQL
         query = """
         SELECT 
             falha, 
@@ -80,7 +94,6 @@ def buscar_falha(marca, modelo, ano, versao, falha_cliente):
 
         print(f"Melhor correspondência: {melhor_correspondencia}, Score: {maior_score}")
 
-        
         if melhor_correspondencia and maior_score > 29:
             return melhor_correspondencia
         else:
@@ -105,6 +118,10 @@ def buscar_falha_com_timeout(marca, modelo, ano, versao, falha_cliente, timeout=
 
         except concurrent.futures.TimeoutError:
             return None
+
+@app.route('/', methods=['GET'])
+def home():
+    return "Bem-vindo à API de Análise de Falhas!"
 
 @app.route('/api/teste', methods=['POST'])
 def teste():
