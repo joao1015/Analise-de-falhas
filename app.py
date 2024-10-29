@@ -1,5 +1,5 @@
-from flask import Flask, request, jsonify
 import oracledb
+from flask import Flask, request, jsonify
 from fuzzywuzzy import fuzz
 import concurrent.futures
 
@@ -19,6 +19,7 @@ def aplicar_pesos(falha_cliente, falha_banco):
             if sinonimo in falha_cliente.lower():
                 if palavra in falha_banco.lower():
                     peso_adicional += 20  # Aumentar peso se houver correspondência de sinônimos
+
     return peso_adicional
 
 def buscar_falha(marca, modelo, ano, versao, falha_cliente):
@@ -79,13 +80,14 @@ def buscar_falha(marca, modelo, ano, versao, falha_cliente):
 
         print(f"Melhor correspondência: {melhor_correspondencia}, Score: {maior_score}")
 
+        
         if melhor_correspondencia and maior_score > 29:
             return melhor_correspondencia
         else:
             return None
 
     except Exception as e:
-        print(f"Ocorreu um erro na função buscar_falhas: {e}")
+        print(f"Ocorreu um erro na função buscar_falha: {e}")
         return None
 
     finally:
@@ -100,15 +102,10 @@ def buscar_falha_com_timeout(marca, modelo, ano, versao, falha_cliente, timeout=
         try:
             falha_encontrada = future.result(timeout=timeout)
             return falha_encontrada
+
         except concurrent.futures.TimeoutError:
             return None
 
-# Rota principal para verificar o funcionamento da API
-@app.route('/', methods=['GET'])
-def home():
-    return "Bem-vindo à API de Análise de Falhas!"
-
-# Rota para análise de falhas
 @app.route('/api/teste', methods=['POST'])
 def teste():
     data = request.get_json()
@@ -131,14 +128,14 @@ def teste():
         diagnostico = falha_encontrada['falha']
 
         response_text = (
-            f"Diagnóstico feito com sucesso para o veículo\n\n"
-            f"Marca: '{marca.capitalize()}'\n"
-            f"Modelo: '{modelo.capitalize()}'\n"
-            f"Versão: '{versao.capitalize()}'\n"
-            f"Ano: '{ano}'\n"
+            f": Diagnóstico feito com sucesso para o veículo\n\n"
+            f"Marca:'{marca.capitalize()}'\n\n"
+            f"Modelo:'{modelo.capitalize()}'\n\n"
+            f"Versao:'{versao.capitalize()}'\n\n"
+            f"Ano:'{ano}'\n\n"
             f"Diagnóstico: Identificamos o problema relacionado a '{diagnostico}'.\n\n"
-            f"Solução sugerida: {falha_encontrada['solucao']}.\n"
-            f"Peças necessárias: {falha_encontrada['pecas']}.\n"
+            f"Solução sugerida: {falha_encontrada['solucao']}.\n\n"
+            f"Peças necessárias: {falha_encontrada['pecas']}.\n\n"
             f"Estimativa de custo: R$ {falha_encontrada['valor']:.2f}.\n\n"
             "Gostaria de agendar o serviço com uma oficina credenciada próxima a você? Nossa rede está pronta para atendê-lo e garantir que seu veículo esteja seguro e funcionando perfeitamente."
         )
