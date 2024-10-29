@@ -3,3 +3,5 @@ cx_Oracle
 fuzzywuzzy
 python-dotenv  
 gunicorn
+Werkzeug==2.0.3
+
