@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-import cx_Oracle
+import oracledb
 from fuzzywuzzy import fuzz
 import concurrent.futures
 
