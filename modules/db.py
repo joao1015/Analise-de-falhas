@@ -1,4 +1,4 @@
-import cx_Oracle
+import oracledb
 import os
 from dotenv import load_dotenv
 from fuzzywuzzy import fuzz
@@ -22,22 +22,19 @@ def aplicar_pesos(falha_cliente, falha_banco):
 
 def get_db_connection():
     """
-    Estabelece conexão com o banco de dados Oracle.
+    Estabelece conexão com o banco de dados Oracle em modo Thin (sem Oracle Client).
     Retorna um objeto de conexão ou None em caso de falha.
     """
     try:
-        dsn_tns = cx_Oracle.makedsn(
-            os.getenv('DB_HOST'),
-            os.getenv('DB_PORT'),
-            service_name=os.getenv('DB_SERVICE')
-        )
-        connection = cx_Oracle.connect(
+        # Modo Thin, que não requer o Oracle Instant Client
+        connection = oracledb.connect(
             user=os.getenv('DB_USER'),
             password=os.getenv('DB_PASSWORD'),
-            dsn=dsn_tns
+            dsn=f"{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_SERVICE')}",
+            mode=oracledb.DEFAULT
         )
         return connection
-    except cx_Oracle.Error as e:
+    except oracledb.Error as e:
         print(f"Erro ao conectar ao banco de dados: {e}")
         return None
 
